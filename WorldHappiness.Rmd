@@ -1,0 +1,162 @@
+---
+title: "WorldHappiness"
+author: '2207479'
+date: "2023-03-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(dplyr)
+library(readr)
+
+```
+# Read data sets into R to prepare them for our process
+```{r}
+happiness2015 <- read.csv("2015.csv")
+happiness2016 <- read.csv("2016.csv")
+happiness2017 <- read.csv("2017.csv")
+happiness2018 <- read.csv("2018.csv")
+happiness2019 <- read.csv("2019.csv")
+```
+# Have a look on the structure of the datasets
+```{r}
+str(happiness2015)
+str(happiness2016)
+str(happiness2017)
+str(happiness2018)
+str(happiness2019)
+```
+
+# Delete Columns that are not common between all of them(matching number of columns)
+```{r}
+happiness2015 <- subset(happiness2015, select = -c(Region,Family,Dystopia.Residual,Standard.Error))
+
+happiness2016 <- subset(happiness2016, select = -c(Region,Family,Lower.Confidence.Interval,Upper.Confidence.Interval,Dystopia.Residual))
+
+happiness2017 <- subset(happiness2017, select = -c(Whisker.high,Whisker.low,Family,Dystopia.Residual))
+
+happiness2018 <- subset(happiness2018, select = -c(Social.support))
+
+happiness2019 <- subset(happiness2019, select = -c(Social.support))
+```
+
+# Check the dataset after deleting the uncommon columns 
+```{r}
+str(happiness2016)
+str(happiness2017)
+str(happiness2018)
+str(happiness2015)
+str(happiness2019)
+```
+# Match the names of columns(2015)
+```{r}
+names(happiness2015)[4] <- "Economy" 
+names(happiness2015)[5] <- "Health.Life.Expectancy"
+names(happiness2015)[7] <- "Trust.Government.Corruption"
+
+```
+# Matching the names of columns(2016)
+```{r}
+names(happiness2016)[4] <- "Economy" 
+names(happiness2016)[5] <- "Health.Life.Expectancy"
+names(happiness2016)[7] <- "Trust.Government.Corruption"
+```
+# Match the names of columns(2017)
+```{r}
+View(happiness2017)
+str(happiness2017)
+names(happiness2017)[4] <- "Economy" 
+names(happiness2017)[5] <- "Health.Life.Expectancy"
+names(happiness2017)[8] <- "Trust.Government.Corruption"
+
+```
+# Match the names of columns(2018)
+```{r}
+View(happiness2018) 
+str(happiness2018)
+names(happiness2018)[1] <- "Happiness.Rank" 
+names(happiness2018)[3] <- "Happiness.Score" 
+names(happiness2018)[2] <- "Country" 
+names(happiness2018)[4] <- "Economy" 
+names(happiness2018)[5] <- "Health.Life.Expectancy"
+names(happiness2018)[6] <- "Freedom"
+names(happiness2018)[8] <- "Trust.Government.Corruption"
+
+```
+# Match the names of columns(2018)
+```{r}
+View(happiness2019) 
+str(happiness2019)
+names(happiness2019)[1] <- "Happiness.Rank" 
+names(happiness2019)[3] <- "Happiness.Score" 
+names(happiness2019)[2] <- "Country" 
+names(happiness2019)[4] <- "Economy" 
+names(happiness2019)[5] <- "Health.Life.Expectancy"
+names(happiness2019)[6] <- "Freedom"
+names(happiness2019)[8] <- "Trust.Government.Corruption"
+
+```
+# Reorder the columns of the datasets based on the "happiness2015" dataset to be able tocombine them as a single dataset  
+```{r}
+happiness2018 <- select(happiness2018, colnames(happiness2015))
+happiness2019 <- select(happiness2019, colnames(happiness2015))
+happiness2017 <- select(happiness2017, colnames(happiness2015))
+
+happiness_combined <- rbind(happiness2015, happiness2016, happiness2017, happiness2018, happiness2019)
+View(happiness_combined)
+str(happiness_combined)
+
+
+```
+# Save the prepared datasets for different years
+```{r}
+write.csv(happiness2015, file = "happiness2015.csv", row.names = FALSE)
+write.csv(happiness2016, file = "happiness2016.csv", row.names = FALSE)
+write.csv(happiness2017, file = "happiness2017.csv", row.names = FALSE)
+write.csv(happiness2018, file = "happiness2018.csv", row.names = FALSE)
+write.csv(happiness2019, file = "happiness2019.csv", row.names = FALSE)
+```
+
+# Read in the CSV datasets for each year and add a year column
+```{r}
+data_2015 <- read_csv("happiness2015.csv") %>% mutate(year = 2015)
+data_2016 <- read_csv("happiness2016.csv") %>% mutate(year = 2016)
+data_2017 <- read_csv("happiness2017.csv") %>% mutate(year = 2017)
+data_2018 <- read_csv("happiness2018.csv") %>% mutate(year = 2018)
+data_2019 <- read_csv("happiness2019.csv") %>% mutate(year = 2019)
+```
+
+
+# Check the data types of the 'Trust.Government.Corruption' column in each data frame
+```{r}
+class(data_2015$Trust.Government.Corruption)
+class(data_2016$Trust.Government.Corruption)
+class(data_2017$Trust.Government.Corruption)
+class(data_2018$Trust.Government.Corruption)
+class(data_2019$Trust.Government.Corruption)
+
+```
+
+# Change the type of the"Trust.Government.Corruption" variable in "data_2018" dataset.
+```{r}
+data_2018$Trust.Government.Corruption <- as.numeric(data_2018$Trust.Government.Corruption)
+
+```
+
+# Combine the datasets into a single data frame
+```{r}
+combined_data <- bind_rows(data_2015, data_2016, data_2017, data_2018, data_2019)
+```
+
+# Save the dataset as a single dataset named "WorldHappiness.csv"
+```{r}
+write.csv(combined_data , file = "WorldHappiness.csv", row.names = FALSE)
+```
+
+
+
